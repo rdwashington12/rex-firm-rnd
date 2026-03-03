@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: alpaca-paper-trading
+    env: docker
+    dockerfilePath: ./trading_system/Dockerfile.dashboard
+    dockerContext: ./trading_system
+    startCommand: /app/start_render.sh
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: BOT_URL
+        value: http://127.0.0.1:8000
+      - key: DATABASE_URL
+        value: sqlite:////var/data/trading.db
+      - key: CYCLE_INTERVAL_SECONDS
+        value: "300"
+      - key: ALPACA_API_KEY
+        sync: false
+      - key: ALPACA_SECRET_KEY
+        sync: false
+      - key: DASHBOARD_ADMIN_TOKEN
+        sync: false
+      - key: DISCORD_WEBHOOK_URL
+        sync: false
+    disks:
+      - name: trading-data
+        mountPath: /var/data
+        sizeGB: 1

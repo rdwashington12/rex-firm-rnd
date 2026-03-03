@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Options Bot Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem auto; max-width: 860px; }
+    .panel { border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .row { margin: .75rem 0; }
+    label { display: block; margin-bottom: 0.25rem; }
+    input[type="text"], select { width: 100%; padding: 0.5rem; }
+    button { padding: 0.6rem 1rem; font-weight: bold; margin-right: .5rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #eee; text-align: left; padding: .4rem; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <h1>Alpaca Options Bot Controls</h1>
+  <div class="panel">
+    <form method="post" action="/controls">
+      <div class="row"><label><input type="checkbox" name="tactical_earnings_enabled" {% if controls.tactical_earnings_enabled %}checked{% endif %}> Tactical Earnings</label></div>
+      <div class="row"><label><input type="checkbox" name="drift_enabled" {% if controls.drift_enabled %}checked{% endif %}> Drift</label></div>
+      <div class="row"><label><input type="checkbox" name="wheel_enabled" {% if controls.wheel_enabled %}checked{% endif %}> Wheel</label></div>
+      <div class="row"><label>Risk Mode</label>
+        <select name="risk_mode">
+          <option value="normal" {% if controls.risk_mode == 'normal' %}selected{% endif %}>Normal</option>
+          <option value="reduce" {% if controls.risk_mode == 'reduce' %}selected{% endif %}>Reduce</option>
+          <option value="flat" {% if controls.risk_mode == 'flat' %}selected{% endif %}>Flat</option>
+        </select>
+      </div>
+      <div class="row"><label><input type="checkbox" name="kill_switch" {% if controls.kill_switch %}checked{% endif %}> Kill Switch</label></div>
+      <div class="row"><label>Whitelist (comma-separated)</label><input type="text" name="whitelist" value="{{ controls.whitelist|join(',') }}"/></div>
+      <div class="row"><label>Blacklist (comma-separated)</label><input type="text" name="blacklist" value="{{ controls.blacklist|join(',') }}"/></div>
+      <button type="submit">Apply Controls</button>
+    </form>
+    <form method="post" action="/run-cycle" style="display:inline"><button type="submit">Run Cycle</button></form>
+    <form method="post" action="/logout" style="display:inline"><button type="submit">Logout</button></form>
+  </div>
+
+  <div class="panel">
+    <h3>Control Audit Log</h3>
+    <table>
+      <thead><tr><th>Time</th><th>Actor</th><th>Action</th></tr></thead>
+      <tbody>
+      {% for row in audit %}
+      <tr><td>{{ row.created_at }}</td><td>{{ row.actor }}</td><td>{{ row.action }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
