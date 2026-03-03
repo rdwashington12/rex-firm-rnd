@@ -1,0 +1,44 @@
+[project]
+name = "alpaca-options-trading-system"
+version = "0.1.0"
+description = "Production-ready Alpaca paper trading system with tactical earnings, drift, and wheel engines"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.111.0",
+  "uvicorn[standard]>=0.30.0",
+  "pydantic>=2.8.0",
+  "pydantic-settings>=2.3.0",
+  "sqlalchemy>=2.0.31",
+  "psycopg[binary]>=3.2.0",
+  "httpx>=0.27.0",
+  "prometheus-client>=0.20.0",
+  "python-json-logger>=2.0.7",
+  "jinja2>=3.1.4",
+  "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0",
+  "ruff>=0.5.0",
+  "mypy>=1.10.0",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*", "dashboard*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+strict = true

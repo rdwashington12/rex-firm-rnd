@@ -1,0 +1,40 @@
+name: Deploy on push
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ORACLE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "${{ secrets.ORACLE_VM_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync repository
+        run: rsync -az --delete ./ "${{ secrets.ORACLE_VM_USER }}@${{ secrets.ORACLE_VM_HOST }}:${{ secrets.ORACLE_VM_PATH }}"
+
+      - name: Render .env on VM
+        run: |
+          ssh "${{ secrets.ORACLE_VM_USER }}@${{ secrets.ORACLE_VM_HOST }}" "cat > ${{ secrets.ORACLE_VM_PATH }}/.env <<'EOT'
+          APP_ENV=prod
+          ALPACA_API_KEY=${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY=${{ secrets.ALPACA_SECRET_KEY }}
+          ALPACA_BASE_URL=https://paper-api.alpaca.markets
+          DATABASE_URL=sqlite:////var/data/trading.db
+          DASHBOARD_ADMIN_TOKEN=${{ secrets.DASHBOARD_ADMIN_TOKEN }}
+          DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
+          CYCLE_INTERVAL_SECONDS=300
+          BOT_URL=http://127.0.0.1:8000
+          EOT"
+
+      - name: Deploy
+        run: |
+          ssh "${{ secrets.ORACLE_VM_USER }}@${{ secrets.ORACLE_VM_HOST }}" "cd ${{ secrets.ORACLE_VM_PATH }} && ./scripts/deploy.sh"

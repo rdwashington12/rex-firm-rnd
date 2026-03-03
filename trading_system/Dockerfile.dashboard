@@ -1,0 +1,9 @@
+FROM python:3.11-slim
+WORKDIR /app
+COPY pyproject.toml ./
+COPY app ./app
+COPY dashboard ./dashboard
+COPY start_render.sh ./start_render.sh
+RUN pip install --no-cache-dir . && chmod +x /app/start_render.sh
+EXPOSE 8080
+CMD ["/app/start_render.sh"]
